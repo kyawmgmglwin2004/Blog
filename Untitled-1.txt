@@ -1,0 +1,11 @@
+php artisan make:model model_name
+php artisan make:migration migration_name
+php artisan make:factory factory_name
+
+composer require laravel/ui
+
+php artisan ui bootstrap --auth
+
+npm install
+
+npm run build

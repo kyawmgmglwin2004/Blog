@@ -1,30 +1,51 @@
-FROM php:8.2-apache
+# FROM php:8.2-apache
 
-# Install required PHP extensions
-RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip git curl libpng-dev libonig-dev libxml2-dev \
-    && docker-php-ext-install pdo_mysql zip
+# # Install required PHP extensions
+# RUN apt-get update && apt-get install -y \
+#     libzip-dev zip unzip git curl libpng-dev libonig-dev libxml2-dev \
+#     && docker-php-ext-install pdo_mysql zip
 
-# Enable Apache Rewrite Module
-RUN a2enmod rewrite
+# # Enable Apache Rewrite Module
+# RUN a2enmod rewrite
 
-# Set working directory
-WORKDIR /var/www/html
+# # Set working directory
+# WORKDIR /var/www/html
 
-# Copy Laravel project files
+# # Copy Laravel project files
+# COPY . .
+
+# # Install Composer
+# COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# # Install Laravel dependencies
+# RUN composer install --no-dev --optimize-autoloader
+
+# # Set permission
+# RUN chmod -R 775 storage bootstrap/cache \
+#     && chown -R www-data:www-data /var/www/html
+
+# # Set Document Root to public
+# RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+# EXPOSE 80
+
+FROM richarvey/nginx-php-fpm:latest
+
 COPY . .
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+#Image config
+ENV SKIP_COMPOSER 1
+ENV WEBROOT /var/www/html/public
+ENV PHP_ERRORS_STDERR 1
+ENV RUN_SCRIPTS1
+ENV REAL_IP_HEADER 1
 
-# Install Laravel dependencies
-RUN composer install --no-dev --optimize-autoloader
+#Laravel config
+ENV LARAVEL_ENV production
+ENV LARAVEL_DEBUG false
+ENV LOG_CHANNEL stderr
 
-# Set permission
-RUN chmod -R 775 storage bootstrap/cache \
-    && chown -R www-data:www-data /var/www/html
+#Allow composer to run as root
+ENV COMPOSER_ALLOW_SUPERUSER 1
 
-# Set Document Root to public
-RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
-
-EXPOSE 80
+CMU ["/start.sh"]

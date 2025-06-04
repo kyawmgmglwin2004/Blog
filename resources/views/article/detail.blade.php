@@ -24,8 +24,10 @@
                     {{ $article->body}}
                 </p>
                 @auth
-                    <a href="{{ url("/articles/delete/$article->id")}}" class="card-link btn btn-sm btn-outline-danger">Delete </a>
+                    @can("delete-article", $article)
+                        <a href="{{ url("/articles/delete/$article->id")}}" class="card-link btn btn-sm btn-outline-danger">Delete </a>
                 <a href="{{url("articles/edit/$article->id")}}" class="card-link btn btn-sm btn-outline-warning float-end">Edit</a>
+                    @endcan
                 @endauth
             </div>
         </div>
